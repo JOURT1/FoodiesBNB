@@ -424,10 +424,11 @@ npm start
 ## 🤝 Support & Maintenance
 
 ### **Support Channels**
-- 📧 **Email**: support@foodiesbnb.com
-- 💬 **Slack**: Premium license holders
-- 📞 **Phone**: Enterprise customers
+- 📧 **Email**: jhoelsuarez02@gmail.com
+- �‍💻 **Developer**: JHOEL SUAREZ
+- � **Specialization**: Desarrollador full stack software a medida
 - 📚 **Documentation**: Comprehensive guides
+- 🔧 **Direct Support**: Personal assistance from the developer
 
 ### **Update Policy**
 - **Security Updates**: Immediate
@@ -456,10 +457,11 @@ npm start
 ## 🎓 Training & Onboarding
 
 ### **Package Includes**
-- 📹 **Video Tutorials**: 4+ hours of content
+- 📹 **Video Tutorials**: 4+ hours of content by JHOEL SUAREZ
 - 📖 **Documentation**: Complete technical guide
-- 🛠️ **Setup Assistance**: 1-on-1 onboarding call
+- 🛠️ **Setup Assistance**: 1-on-1 onboarding call with the developer
 - 📊 **Best Practices**: Industry-specific guidelines
+- 🔧 **Direct Developer Support**: Personal assistance from JHOEL SUAREZ
 
 ---
 
@@ -476,22 +478,26 @@ npm start
 ## 📞 Contact & Sales
 
 ### **Get Started Today**
-- 🌐 **Website**: www.foodiesbnb.com
-- 📧 **Sales**: sales@foodiesbnb.com
-- 📱 **WhatsApp**: +593-XXX-XXXX
-- 📍 **Location**: Quito, Ecuador
+- 👨‍💻 **Developer**: JHOEL SUAREZ
+- 📧 **Email**: jhoelsuarez02@gmail.com
+- � **Services**: Desarrollador full stack software a medida
+- 🏆 **Copyright**: Derechos de autor - JHOEL SUAREZ
+- 📍 **Location**: Available worldwide (Remote development)
 
 ### **Demo Request**
-Request a personalized demo to see FoodiesBNB in action:
+Contact JHOEL SUAREZ directly for a personalized demo:
 - Live system walkthrough
 - Custom feature demonstration
 - ROI calculation for your business
 - Technical architecture review
+- Custom software development consultation
 
 ---
 
-**© 2025 FoodiesBNB. All rights reserved. Commercial software solution.**
+**© 2025 JHOEL SUAREZ. Todos los derechos reservados. Software comercial desarrollado a medida.**
+
+**Desarrollador Full Stack | Software a Medida | jhoelsuarez02@gmail.com**
 
 ---
 
-*Ready to transform your restaurant business or food discovery experience? Contact our sales team today for a personalized consultation and pricing.*
+*¿Listo para transformar tu negocio de restaurantes o experiencia gastronómica? Contacta directamente a JHOEL SUAREZ para una consulta personalizada y cotización.*
