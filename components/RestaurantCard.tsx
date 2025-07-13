@@ -22,27 +22,51 @@ interface RestaurantCardProps {
     benefits?: string[];
   };
   onScheduleVisit: (restaurant: any) => void;
+  onDetailsClick?: (restaurant: any) => void;
+  onToggleFavorite?: (restaurantId: string) => void;
+  isFavorite?: boolean;
 }
 
-export default function RestaurantCard({ restaurant, onScheduleVisit }: RestaurantCardProps) {
-  const [isFavorite, setIsFavorite] = useState(false);
+export default function RestaurantCard({ 
+  restaurant, 
+  onScheduleVisit, 
+  onDetailsClick,
+  onToggleFavorite,
+  isFavorite: propIsFavorite
+}: RestaurantCardProps) {
+  const [localIsFavorite, setLocalIsFavorite] = useState(false);
 
+  // Sincronizar el estado local con la prop isFavorite
   useEffect(() => {
-    setIsFavorite(localStorageUtils.isFavorite(restaurant.id));
-  }, [restaurant.id]);
+    if (propIsFavorite !== undefined) {
+      setLocalIsFavorite(propIsFavorite);
+    } else {
+      // Fallback al localStorage si no se pasa la prop
+      setLocalIsFavorite(localStorageUtils.isFavorite(restaurant.id));
+    }
+  }, [propIsFavorite, restaurant.id]);
+
+  // Estado final que se usa para el rendering
+  const isFavorite = propIsFavorite !== undefined ? propIsFavorite : localIsFavorite;
 
   const handleFavoriteToggle = () => {
-    if (isFavorite) {
-      localStorageUtils.removeFavorite(restaurant.id);
+    if (onToggleFavorite) {
+      onToggleFavorite(restaurant.id);
     } else {
-      localStorageUtils.addFavorite(restaurant.id);
+      // Fallback al comportamiento anterior
+      const newIsFavorite = !isFavorite;
+      if (isFavorite) {
+        localStorageUtils.removeFavorite(restaurant.id);
+      } else {
+        localStorageUtils.addFavorite(restaurant.id);
+      }
+      setLocalIsFavorite(newIsFavorite);
+      
+      // Disparar evento para actualizar el dashboard
+      window.dispatchEvent(new CustomEvent('favoritesChanged', {
+        detail: { restaurantId: restaurant.id, isFavorite: newIsFavorite }
+      }));
     }
-    setIsFavorite(!isFavorite);
-    
-    // Disparar evento para actualizar el dashboard
-    window.dispatchEvent(new CustomEvent('favoritesChanged', {
-      detail: { restaurantId: restaurant.id, isFavorite: !isFavorite }
-    }));
   };
 
   const renderStars = (rating: number) => {
@@ -66,11 +90,13 @@ export default function RestaurantCard({ restaurant, onScheduleVisit }: Restaura
         />
         <button
           onClick={handleFavoriteToggle}
-          className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors"
+          className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-all duration-200 hover:scale-110 active:scale-95"
         >
           <Heart
-            className={`h-5 w-5 ${
-              isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400'
+            className={`h-5 w-5 transition-all duration-300 ${
+              isFavorite 
+                ? 'fill-red-500 text-red-500 scale-110' 
+                : 'text-gray-400 hover:text-red-300'
             }`}
           />
         </button>
@@ -128,16 +154,25 @@ export default function RestaurantCard({ restaurant, onScheduleVisit }: Restaura
             </div>
           )}
           
-          <div className="flex justify-between items-center pt-3">
-            <span className="font-semibold text-green-600">
-              {restaurant.priceRange}
-            </span>
-            <Button
-              onClick={() => onScheduleVisit(restaurant)}
-              className="bg-red-500 hover:bg-red-600"
-            >
-              Programar Visita
-            </Button>
+          <div className="flex justify-end items-center pt-3 gap-2">
+            <div className="flex gap-2">
+              {onDetailsClick && (
+                <Button
+                  onClick={() => onDetailsClick(restaurant)}
+                  variant="outline"
+                  size="sm"
+                >
+                  Ver Detalles
+                </Button>
+              )}
+              <Button
+                onClick={() => onScheduleVisit(restaurant)}
+                className="bg-red-500 hover:bg-red-600"
+                size="sm"
+              >
+                Reservar
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>

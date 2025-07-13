@@ -107,10 +107,10 @@ export default function VisitModal({ restaurant, onClose, onSchedule }: VisitMod
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            Programar Visita
+            Reservar Mesa
           </DialogTitle>
           <DialogDescription>
-            Programa tu visita a {restaurant.name}
+            Reserva tu mesa en {restaurant.name} y disfruta de beneficios exclusivos
           </DialogDescription>
         </DialogHeader>
         

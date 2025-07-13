@@ -17,6 +17,16 @@ export interface User {
   fullName: string;
   userType: 'foodie' | 'restaurant';
   createdAt: string;
+  phone?: string;
+  bio?: string;
+  preferences?: string[];
+  restaurantInfo?: {
+    description?: string;
+    specialties?: string[];
+    capacity?: number;
+    openingHours?: string;
+  };
+  updatedAt?: string;
 }
 
 // Simulación de hash de contraseña (en producción usar bcrypt)
@@ -127,6 +137,89 @@ export const authService = {
       return JSON.parse(localStorage.getItem('foodiesBnbUsers') || '[]');
     } catch {
       return [];
+    }
+  },
+
+  // Actualizar perfil de usuario
+  updateProfile: async (userId: string, data: {
+    fullName?: string;
+    phone?: string;
+    bio?: string;
+    preferences?: string[];
+    restaurantInfo?: {
+      description?: string;
+      specialties?: string[];
+      capacity?: number;
+      openingHours?: string;
+    };
+  }): Promise<{ success: boolean; error?: string; user?: User }> => {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const users = JSON.parse(localStorage.getItem('foodiesBnbUsers') || '[]');
+      const userIndex = users.findIndex((u: any) => u.id === userId);
+      
+      if (userIndex === -1) {
+        return { success: false, error: 'Usuario no encontrado' };
+      }
+
+      // Actualizar datos del usuario
+      users[userIndex] = { ...users[userIndex], ...data, updatedAt: new Date().toISOString() };
+      
+      // Guardar en localStorage
+      localStorage.setItem('foodiesBnbUsers', JSON.stringify(users));
+      
+      // Actualizar usuario actual si es el mismo
+      const currentUser = localStorage.getItem('foodiesBnbCurrentUser');
+      if (currentUser) {
+        const current = JSON.parse(currentUser);
+        if (current.id === userId) {
+          const { password: _, ...updatedUser } = users[userIndex];
+          localStorage.setItem('foodiesBnbCurrentUser', JSON.stringify(updatedUser));
+          return { success: true, user: updatedUser };
+        }
+      }
+
+      const { password: _, ...updatedUser } = users[userIndex];
+      return { success: true, user: updatedUser };
+    } catch (error) {
+      return { success: false, error: 'Error al actualizar perfil' };
+    }
+  },
+
+  // Cambiar contraseña
+  changePassword: async (userId: string, currentPassword: string, newPassword: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const users = JSON.parse(localStorage.getItem('foodiesBnbUsers') || '[]');
+      const userIndex = users.findIndex((u: any) => u.id === userId);
+      
+      if (userIndex === -1) {
+        return { success: false, error: 'Usuario no encontrado' };
+      }
+
+      const user = users[userIndex];
+      
+      // Verificar contraseña actual
+      if (!verifyPassword(currentPassword, user.password)) {
+        return { success: false, error: 'La contraseña actual es incorrecta' };
+      }
+
+      // Validar nueva contraseña
+      if (newPassword.length < 6) {
+        return { success: false, error: 'La nueva contraseña debe tener al menos 6 caracteres' };
+      }
+
+      // Actualizar contraseña
+      users[userIndex].password = hashPassword(newPassword);
+      users[userIndex].updatedAt = new Date().toISOString();
+      
+      localStorage.setItem('foodiesBnbUsers', JSON.stringify(users));
+      
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: 'Error al cambiar contraseña' };
     }
   }
 };

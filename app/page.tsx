@@ -1,9 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import LoginForm from '@/components/LoginForm';
+import UserLoginForm from '@/components/UserLoginForm';
+import RestaurantLoginForm from '@/components/RestaurantLoginForm';
 import Dashboard from '@/components/Dashboard';
+import RestaurantDashboard from '@/components/RestaurantDashboard';
 import DevPanel from '@/components/DevPanel';
+import { Button } from '@/components/ui/button';
 import { authService } from '@/lib/auth';
 
 export default function Home() {
@@ -11,6 +14,7 @@ export default function Home() {
   const [userType, setUserType] = useState<'foodie' | 'restaurant'>('foodie');
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loginType, setLoginType] = useState<'user' | 'restaurant' | null>(null);
 
   useEffect(() => {
     // Verificar si hay una sesión activa
@@ -23,8 +27,14 @@ export default function Home() {
     setIsLoading(false);
   }, []);
 
-  const handleLogin = (type: 'foodie' | 'restaurant', userData: any) => {
-    setUserType(type);
+  const handleUserLogin = (userData: any) => {
+    setUserType('foodie');
+    setUser(userData);
+    setIsLoggedIn(true);
+  };
+
+  const handleRestaurantLogin = (userData: any) => {
+    setUserType('restaurant');
     setUser(userData);
     setIsLoggedIn(true);
   };
@@ -33,6 +43,7 @@ export default function Home() {
     authService.logout();
     setIsLoggedIn(false);
     setUser(null);
+    setLoginType(null);
   };
 
   if (isLoading) {
@@ -52,7 +63,76 @@ export default function Home() {
   return (
     <>
       {!isLoggedIn ? (
-        <LoginForm onLogin={handleLogin} />
+        <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-50">
+          {loginType === null ? (
+            <div className="min-h-screen flex items-center justify-center">
+              <div className="text-center space-y-8">
+                <div className="mb-8">
+                  <h1 className="text-6xl font-bold mb-4">
+                    Foodies<span className="text-red-500">BNB</span>
+                  </h1>
+                  <p className="text-xl text-gray-600">
+                    Descubre experiencias gastronómicas únicas
+                  </p>
+                </div>
+                
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-semibold text-gray-800">
+                    ¿Cómo quieres acceder?
+                  </h2>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Button
+                      onClick={() => setLoginType('user')}
+                      className="bg-red-500 hover:bg-red-600 text-white px-8 py-3 text-lg"
+                      size="lg"
+                    >
+                      Soy un Foodie
+                    </Button>
+                    <Button
+                      onClick={() => setLoginType('restaurant')}
+                      className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 text-lg"
+                      size="lg"
+                    >
+                      Tengo un Restaurante
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : loginType === 'user' ? (
+            <div className="min-h-screen flex items-center justify-center py-12 px-4">
+              <div className="w-full max-w-md">
+                <div className="text-center mb-6">
+                  <Button
+                    onClick={() => setLoginType(null)}
+                    variant="ghost"
+                    className="text-gray-600 hover:text-gray-800"
+                  >
+                    ← Volver a opciones
+                  </Button>
+                </div>
+                <UserLoginForm onLogin={handleUserLogin} />
+              </div>
+            </div>
+          ) : (
+            <div className="min-h-screen flex items-center justify-center py-12 px-4">
+              <div className="w-full max-w-md">
+                <div className="text-center mb-6">
+                  <Button
+                    onClick={() => setLoginType(null)}
+                    variant="ghost"
+                    className="text-gray-600 hover:text-gray-800"
+                  >
+                    ← Volver a opciones
+                  </Button>
+                </div>
+                <RestaurantLoginForm onLogin={handleRestaurantLogin} />
+              </div>
+            </div>
+          )}
+        </div>
+      ) : userType === 'restaurant' ? (
+        <RestaurantDashboard user={user} onLogout={handleLogout} />
       ) : (
         <Dashboard userType={userType} user={user} onLogout={handleLogout} />
       )}

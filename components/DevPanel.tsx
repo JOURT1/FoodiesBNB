@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Users, Trash2, Eye, EyeOff, Store } from 'lucide-react';
 import { authService } from '@/lib/auth';
 
 export default function DevPanel() {
@@ -21,12 +21,16 @@ export default function DevPanel() {
     setUsers(registeredUsers);
   };
 
+  const userCount = users.filter(user => user.userType === 'foodie').length;
+  const restaurantCount = users.filter(user => user.userType === 'restaurant').length;
+
   const clearAllUsers = () => {
     if (confirm('¿Estás seguro de que quieres borrar todos los usuarios registrados?')) {
       localStorage.removeItem('foodiesBnbUsers');
       localStorage.removeItem('foodiesBnbCurrentUser');
       localStorage.removeItem('foodiesBnbVisits');
       localStorage.removeItem('foodiesBnbFavorites');
+      localStorage.removeItem('foodiesBnbRestaurants'); // También limpiar restaurantes
       setUsers([]);
       window.location.reload();
     }
@@ -60,11 +64,18 @@ export default function DevPanel() {
           </Button>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              <span className="text-sm">Usuarios registrados: {users.length}</span>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="flex items-center gap-1">
+              <Users className="h-3 w-3" />
+              <span className="text-xs">Usuarios: {userCount}</span>
             </div>
+            <div className="flex items-center gap-1">
+              <Store className="h-3 w-3" />
+              <span className="text-xs">Restaurantes: {restaurantCount}</span>
+            </div>
+          </div>
+          
+          <div className="flex justify-center">
             <Button onClick={refreshUsers} size="sm" className="h-6 text-xs">
               Actualizar
             </Button>
