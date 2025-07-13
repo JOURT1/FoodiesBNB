@@ -10,12 +10,11 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Search, MapPin, Heart, LogOut, Calendar, Clock, Users, 
   CheckCircle, X, Edit, Eye, EyeOff, BarChart3, TrendingUp, DollarSign, 
-  Settings, Target, Activity, Percent, CreditCard, Code
+  Settings, Target, Activity, Percent, CreditCard, Code, UtensilsCrossed
 } from 'lucide-react';
 import RestaurantCard from './RestaurantCard';
 import RestaurantDetails from './RestaurantDetails';
 import VisitModal from './VisitModal';
-import DevPanel from './DevPanel';
 import { mockRestaurants, localStorageUtils, quitoZones, premiumCuisines } from '@/lib/mockData';
 import { authService } from '@/lib/auth';
 
@@ -43,7 +42,6 @@ export default function Dashboard({ userType, user, onLogout }: DashboardProps) 
   const [allRestaurants, setAllRestaurants] = useState<any[]>([]);
   const [showRestaurantDetails, setShowRestaurantDetails] = useState(false);
   const [selectedRestaurantForDetails, setSelectedRestaurantForDetails] = useState<any>(null);
-  const [showDevPanel, setShowDevPanel] = useState(false);
   
   // Estados para manejo del perfil
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -70,10 +68,6 @@ export default function Dashboard({ userType, user, onLogout }: DashboardProps) 
   useEffect(() => {
     setVisits(localStorageUtils.getVisits());
     setFavorites(localStorageUtils.getFavorites());
-    
-    // Verificar si el dev panel debe mostrarse desde localStorage
-    const devFromStorage = localStorage.getItem('showDevPanel') === 'true';
-    setShowDevPanel(devFromStorage);
     
     const userRestaurants = JSON.parse(localStorage.getItem('foodiesBnbRestaurants') || '[]');
     
@@ -314,9 +308,8 @@ export default function Dashboard({ userType, user, onLogout }: DashboardProps) 
   };
 
   const toggleDevPanel = () => {
-    const newValue = !showDevPanel;
-    setShowDevPanel(newValue);
-    localStorage.setItem('showDevPanel', newValue.toString());
+    // Solo abrir el panel, el cierre se maneja desde el panel mismo
+    localStorage.setItem('showDevPanel', 'true');
   };
 
   useEffect(() => {
@@ -373,21 +366,28 @@ export default function Dashboard({ userType, user, onLogout }: DashboardProps) 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">FoodiesBNB Quito Premium</h1>
-          <p className="text-gray-600">Descubre los mejores restaurantes premium de Quito, Ecuador</p>
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {userType === 'foodie' ? 'Panel del Foodie' : 'Panel del Restaurante'}
+          </h1>
+          <p className="text-gray-600">
+            {userType === 'foodie' 
+              ? 'Explora y conecta con restaurantes locales.' 
+              : 'Gestiona tu restaurante y reservas.'
+            }
+          </p>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="mb-8">
-          <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit">
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2">
             {tabs.map((tab) => (
               <Button
                 key={tab.id}
-                className={`px-4 py-2 text-sm ${
+                className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
                   activeTab === tab.id 
-                    ? 'bg-red-500 hover:bg-red-600 text-white' 
-                    : 'bg-transparent text-gray-600 hover:bg-gray-200'
+                    ? 'bg-red-500 hover:bg-red-600 text-white shadow-md' 
+                    : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
                 }`}
                 onClick={() => handleTabChange(tab.id)}
               >
@@ -675,62 +675,98 @@ export default function Dashboard({ userType, user, onLogout }: DashboardProps) 
         {/* Explorar Tab */}
         {activeTab === 'explorar' && (
           <div className="space-y-6">
-            {/* Filtros */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                    <Input
-                      placeholder="Buscar restaurantes..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
+            {/* Barra de búsqueda y filtros como en la imagen */}
+            <div className="bg-white rounded-lg shadow-sm border p-4">
+              <div className="flex flex-col lg:flex-row gap-4 items-center">
+                {/* Barra de búsqueda principal - más larga */}
+                <div className="relative flex-1 max-w-2xl">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <Input
+                    placeholder="Buscar restaurantes por nombre..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 pr-4 py-3 text-base border-gray-300 rounded-lg focus:border-red-500 focus:ring-red-500 w-full"
+                  />
+                </div>
+
+                {/* Filtro de Ubicación */}
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-gray-500" />
                   <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-48 border-gray-300">
                       <SelectValue placeholder="Ubicación" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todas las ubicaciones</SelectItem>
-                      {quitoZones.filter(zone => zone.value !== 'all').map((zone) => (
+                      {quitoZones.map((zone) => (
                         <SelectItem key={zone.value} value={zone.value}>{zone.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                {/* Filtro de Tipo de cocina */}
+                <div className="flex items-center gap-2">
+                  <UtensilsCrossed className="h-5 w-5 text-gray-500" />
                   <Select value={selectedCuisine} onValueChange={setSelectedCuisine}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-48 border-gray-300">
                       <SelectValue placeholder="Tipo de cocina" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todos los tipos</SelectItem>
-                      {premiumCuisines.filter(cuisine => cuisine.value !== 'all').map((cuisine) => (
+                      {premiumCuisines.map((cuisine) => (
                         <SelectItem key={cuisine.value} value={cuisine.value}>{cuisine.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Lista de Restaurantes */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredRestaurants.map((restaurant) => (
-                <RestaurantCard
-                  key={restaurant.id}
-                  restaurant={restaurant}
-                  isFavorite={favorites.includes(restaurant.id)}
-                  onToggleFavorite={() => handleToggleFavorite(restaurant.id)}
-                  onDetailsClick={() => handleDetailsClick(restaurant)}
-                  onScheduleVisit={() => handleScheduleVisit(restaurant)}
-                />
+                <div key={restaurant.id} className="group">
+                  <RestaurantCard
+                    restaurant={restaurant}
+                    isFavorite={favorites.includes(restaurant.id)}
+                    onToggleFavorite={() => handleToggleFavorite(restaurant.id)}
+                    onDetailsClick={() => handleDetailsClick(restaurant)}
+                    onScheduleVisit={() => handleScheduleVisit(restaurant)}
+                  />
+                </div>
               ))}
             </div>
 
+            {/* Estadísticas de búsqueda */}
+            {filteredRestaurants.length > 0 && (
+              <div className="text-center py-4">
+                <p className="text-gray-600">
+                  Mostrando {filteredRestaurants.length} restaurante{filteredRestaurants.length !== 1 ? 's' : ''} premium{' '}
+                  {selectedLocation !== 'all' && `en ${quitoZones.find(z => z.value === selectedLocation)?.label}`}
+                  {selectedCuisine !== 'all' && ` de cocina ${premiumCuisines.find(c => c.value === selectedCuisine)?.label}`}
+                </p>
+              </div>
+            )}
+
             {filteredRestaurants.length === 0 && (
               <div className="text-center py-12">
-                <p className="text-gray-500">No se encontraron restaurantes.</p>
+                <div className="max-w-md mx-auto">
+                  <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No se encontraron restaurantes</h3>
+                  <p className="text-gray-500 mb-4">
+                    Intenta ajustar tus filtros o buscar con términos diferentes.
+                  </p>
+                  <Button 
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedLocation('all');
+                      setSelectedCuisine('all');
+                    }}
+                    variant="outline"
+                    className="text-red-600 border-red-300 hover:bg-red-50"
+                  >
+                    Limpiar filtros
+                  </Button>
+                </div>
               </div>
             )}
           </div>
@@ -1093,9 +1129,6 @@ export default function Dashboard({ userType, user, onLogout }: DashboardProps) 
           onToggleFavorite={() => handleToggleFavorite(selectedRestaurantForDetails.id)}
         />
       )}
-
-      {/* Panel de Desarrollo */}
-      {showDevPanel && <DevPanel />}
     </div>
   );
 }

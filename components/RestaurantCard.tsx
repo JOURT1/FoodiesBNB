@@ -154,23 +154,27 @@ export default function RestaurantCard({
             </div>
           )}
           
-          <div className="flex justify-end items-center pt-3 gap-2">
+          <div className="flex justify-between items-center pt-3">
+            <div className="text-sm font-semibold text-gray-900">
+              {restaurant.priceRange}
+            </div>
             <div className="flex gap-2">
               {onDetailsClick && (
                 <Button
                   onClick={() => onDetailsClick(restaurant)}
                   variant="outline"
                   size="sm"
+                  className="text-gray-600 border-gray-300 hover:bg-gray-50"
                 >
                   Ver Detalles
                 </Button>
               )}
               <Button
                 onClick={() => onScheduleVisit(restaurant)}
-                className="bg-red-500 hover:bg-red-600"
+                className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-medium"
                 size="sm"
               >
-                Reservar
+                Programar Visita
               </Button>
             </div>
           </div>

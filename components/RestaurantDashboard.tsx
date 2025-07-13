@@ -26,7 +26,6 @@ import {
   DollarSign,
   Code
 } from 'lucide-react';
-import DevPanel from './DevPanel';
 
 interface RestaurantInfo {
   name: string;
@@ -88,7 +87,6 @@ export default function RestaurantDashboard({ user, onLogout }: RestaurantDashbo
     image: ''
   });
   const [newImageUrl, setNewImageUrl] = useState('');
-  const [showDevPanel, setShowDevPanel] = useState(false);
 
   useEffect(() => {
     // Cargar información del restaurante
@@ -107,10 +105,6 @@ export default function RestaurantDashboard({ user, onLogout }: RestaurantDashbo
     } else {
       setIsEditing(true); // Editar automáticamente si no hay info
     }
-    
-    // Verificar si el dev panel debe mostrarse desde localStorage
-    const devFromStorage = localStorage.getItem('showDevPanel') === 'true';
-    setShowDevPanel(devFromStorage);
   }, [user.id]);
 
   const handleSave = async () => {
@@ -211,9 +205,8 @@ export default function RestaurantDashboard({ user, onLogout }: RestaurantDashbo
   };
 
   const toggleDevPanel = () => {
-    const newValue = !showDevPanel;
-    setShowDevPanel(newValue);
-    localStorage.setItem('showDevPanel', newValue.toString());
+    // Solo abrir el panel, el cierre se maneja desde el panel mismo
+    localStorage.setItem('showDevPanel', 'true');
   };
 
   return (
@@ -741,9 +734,6 @@ export default function RestaurantDashboard({ user, onLogout }: RestaurantDashbo
           </CardContent>
         </Card>
       </div>
-
-      {/* Panel de Desarrollo */}
-      {showDevPanel && <DevPanel />}
     </div>
   );
 }

@@ -4,17 +4,21 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, Trash2, Eye, EyeOff, Store } from 'lucide-react';
+import { Users, Trash2, EyeOff, Store } from 'lucide-react';
 import { authService } from '@/lib/auth';
 
-export default function DevPanel() {
+interface DevPanelProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function DevPanel({ isOpen = false, onClose }: DevPanelProps) {
   const [users, setUsers] = useState<any[]>([]);
-  const [showDevPanel, setShowDevPanel] = useState(false);
 
   useEffect(() => {
     const registeredUsers = authService.getRegisteredUsers();
     setUsers(registeredUsers);
-  }, []);
+  }, [isOpen]);
 
   const refreshUsers = () => {
     const registeredUsers = authService.getRegisteredUsers();
@@ -36,27 +40,15 @@ export default function DevPanel() {
     }
   };
 
-  if (!showDevPanel) {
-    return (
-      <div className="fixed bottom-4 right-4 z-50">
-        <Button
-          onClick={() => setShowDevPanel(true)}
-          className="bg-blue-500 hover:bg-blue-600 rounded-full"
-          size="sm"
-        >
-          <Eye className="h-4 w-4" />
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="fixed bottom-4 right-4 z-50 w-80">
       <Card className="shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Panel de Desarrollo</CardTitle>
           <Button
-            onClick={() => setShowDevPanel(false)}
+            onClick={() => {
+              onClose && onClose();
+            }}
             size="sm"
             className="h-6 w-6 p-0"
           >
