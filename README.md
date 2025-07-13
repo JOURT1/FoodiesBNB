@@ -58,6 +58,7 @@
 - **CSS Processing**: PostCSS 8.4.30 + Autoprefixer
 - **Package Manager**: npm
 - **Version Control**: Git
+- **Analytics**: Vercel Analytics 1.5.0
 
 #### **Database & Storage**
 - **Primary Storage**: localStorage (Client-side)
@@ -243,6 +244,9 @@ npm run dev
 NEXT_PUBLIC_APP_NAME=FoodiesBNB
 NEXT_PUBLIC_APP_VERSION=1.0.0
 NEXT_PUBLIC_ENVIRONMENT=production
+
+# Vercel Analytics (automatically configured)
+# No additional environment variables needed
 ```
 
 ### **Build for Production**
@@ -401,6 +405,7 @@ npm start
 ## 📈 Analytics & Monitoring
 
 ### **Built-in Analytics**
+- **Vercel Analytics**: Real-time page views and visitor tracking
 - User registration tracking
 - Restaurant performance metrics
 - Reservation conversion rates
@@ -412,6 +417,7 @@ npm start
 - System performance metrics
 - Error tracking and logging
 - Custom event tracking
+- Web vitals monitoring
 
 ---
 
