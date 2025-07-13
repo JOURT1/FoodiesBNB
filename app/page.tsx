@@ -15,6 +15,7 @@ export default function Home() {
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loginType, setLoginType] = useState<'user' | 'restaurant' | null>(null);
+  const [showDevPanel, setShowDevPanel] = useState(false);
 
   useEffect(() => {
     // Verificar si hay una sesión activa
@@ -24,8 +25,36 @@ export default function Home() {
       setUserType(currentUser.userType);
       setIsLoggedIn(true);
     }
+    
+    // Verificar si el dev panel debe mostrarse (por URL o localStorage)
+    const urlParams = new URLSearchParams(window.location.search);
+    const devFromUrl = urlParams.get('dev') === 'true';
+    const devFromStorage = localStorage.getItem('showDevPanel') === 'true';
+    
+    if (devFromUrl) {
+      localStorage.setItem('showDevPanel', 'true');
+      setShowDevPanel(true);
+    } else if (devFromStorage) {
+      setShowDevPanel(true);
+    }
+    
+    // Escuchar combinación de teclas Ctrl+Shift+D para mostrar/ocultar dev panel
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+        e.preventDefault();
+        const newValue = !showDevPanel;
+        setShowDevPanel(newValue);
+        localStorage.setItem('showDevPanel', newValue.toString());
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyPress);
     setIsLoading(false);
-  }, []);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [showDevPanel]);
 
   const handleUserLogin = (userData: any) => {
     setUserType('foodie');
@@ -137,8 +166,8 @@ export default function Home() {
         <Dashboard userType={userType} user={user} onLogout={handleLogout} />
       )}
       
-      {/* Panel de desarrollo solo visible en desarrollo */}
-      {process.env.NODE_ENV === 'development' && <DevPanel />}
+      {/* Panel de desarrollo - accesible con Ctrl+Shift+D o ?dev=true en la URL */}
+      {showDevPanel && <DevPanel />}
     </>
   );
 }

@@ -23,8 +23,10 @@ import {
   Upload,
   X,
   Calendar,
-  DollarSign
+  DollarSign,
+  Code
 } from 'lucide-react';
+import DevPanel from './DevPanel';
 
 interface RestaurantInfo {
   name: string;
@@ -86,6 +88,7 @@ export default function RestaurantDashboard({ user, onLogout }: RestaurantDashbo
     image: ''
   });
   const [newImageUrl, setNewImageUrl] = useState('');
+  const [showDevPanel, setShowDevPanel] = useState(false);
 
   useEffect(() => {
     // Cargar información del restaurante
@@ -104,6 +107,10 @@ export default function RestaurantDashboard({ user, onLogout }: RestaurantDashbo
     } else {
       setIsEditing(true); // Editar automáticamente si no hay info
     }
+    
+    // Verificar si el dev panel debe mostrarse desde localStorage
+    const devFromStorage = localStorage.getItem('showDevPanel') === 'true';
+    setShowDevPanel(devFromStorage);
   }, [user.id]);
 
   const handleSave = async () => {
@@ -203,6 +210,12 @@ export default function RestaurantDashboard({ user, onLogout }: RestaurantDashbo
     visits: Math.floor(Math.random() * 200) + 20
   };
 
+  const toggleDevPanel = () => {
+    const newValue = !showDevPanel;
+    setShowDevPanel(newValue);
+    localStorage.setItem('showDevPanel', newValue.toString());
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -216,10 +229,20 @@ export default function RestaurantDashboard({ user, onLogout }: RestaurantDashbo
                 <p className="text-gray-600">Bienvenido, {user.fullName}</p>
               </div>
             </div>
-            <Button onClick={onLogout} variant="outline" className="flex items-center gap-2">
-              <LogOut className="h-4 w-4" />
-              Cerrar Sesión
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                onClick={toggleDevPanel}
+                className="flex items-center gap-2 bg-blue-100 text-blue-700 hover:bg-blue-200"
+                size="sm"
+              >
+                <Code className="h-4 w-4" />
+                Dev
+              </Button>
+              <Button onClick={onLogout} variant="outline" className="flex items-center gap-2">
+                <LogOut className="h-4 w-4" />
+                Cerrar Sesión
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -718,6 +741,9 @@ export default function RestaurantDashboard({ user, onLogout }: RestaurantDashbo
           </CardContent>
         </Card>
       </div>
+
+      {/* Panel de Desarrollo */}
+      {showDevPanel && <DevPanel />}
     </div>
   );
 }

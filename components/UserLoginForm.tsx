@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Eye, EyeOff, UtensilsCrossed } from 'lucide-react';
+import { Loader2, Eye, EyeOff, UtensilsCrossed, Code } from 'lucide-react';
 import { authService } from '@/lib/auth';
+import DevPanel from './DevPanel';
 
 interface UserLoginFormProps {
   onLogin: (user: any) => void;
@@ -24,6 +25,19 @@ export default function UserLoginForm({ onLogin }: UserLoginFormProps) {
   const [success, setSuccess] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showDevPanel, setShowDevPanel] = useState(false);
+
+  useEffect(() => {
+    // Verificar si el dev panel debe mostrarse desde localStorage
+    const devFromStorage = localStorage.getItem('showDevPanel') === 'true';
+    setShowDevPanel(devFromStorage);
+  }, []);
+
+  const toggleDevPanel = () => {
+    const newValue = !showDevPanel;
+    setShowDevPanel(newValue);
+    localStorage.setItem('showDevPanel', newValue.toString());
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -216,6 +230,22 @@ export default function UserLoginForm({ onLogin }: UserLoginFormProps) {
           </form>
         </CardContent>
       </Card>
+
+      {/* Botón Dev Panel */}
+      <div className="mt-4 text-center">
+        <Button
+          onClick={toggleDevPanel}
+          variant="outline"
+          size="sm"
+          className="text-blue-600 border-blue-300 hover:bg-blue-50"
+        >
+          <Code className="h-4 w-4 mr-2" />
+          {showDevPanel ? 'Ocultar' : 'Mostrar'} Panel de Desarrollo
+        </Button>
+      </div>
+
+      {/* Panel de Desarrollo */}
+      {showDevPanel && <DevPanel />}
     </div>
   );
 }

@@ -10,11 +10,12 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Search, MapPin, Heart, LogOut, Calendar, Clock, Users, 
   CheckCircle, X, Edit, Eye, EyeOff, BarChart3, TrendingUp, DollarSign, 
-  Settings, Target, Activity, Percent, CreditCard
+  Settings, Target, Activity, Percent, CreditCard, Code
 } from 'lucide-react';
 import RestaurantCard from './RestaurantCard';
 import RestaurantDetails from './RestaurantDetails';
 import VisitModal from './VisitModal';
+import DevPanel from './DevPanel';
 import { mockRestaurants, localStorageUtils, quitoZones, premiumCuisines } from '@/lib/mockData';
 import { authService } from '@/lib/auth';
 
@@ -42,6 +43,7 @@ export default function Dashboard({ userType, user, onLogout }: DashboardProps) 
   const [allRestaurants, setAllRestaurants] = useState<any[]>([]);
   const [showRestaurantDetails, setShowRestaurantDetails] = useState(false);
   const [selectedRestaurantForDetails, setSelectedRestaurantForDetails] = useState<any>(null);
+  const [showDevPanel, setShowDevPanel] = useState(false);
   
   // Estados para manejo del perfil
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -68,6 +70,10 @@ export default function Dashboard({ userType, user, onLogout }: DashboardProps) 
   useEffect(() => {
     setVisits(localStorageUtils.getVisits());
     setFavorites(localStorageUtils.getFavorites());
+    
+    // Verificar si el dev panel debe mostrarse desde localStorage
+    const devFromStorage = localStorage.getItem('showDevPanel') === 'true';
+    setShowDevPanel(devFromStorage);
     
     const userRestaurants = JSON.parse(localStorage.getItem('foodiesBnbRestaurants') || '[]');
     
@@ -307,6 +313,12 @@ export default function Dashboard({ userType, user, onLogout }: DashboardProps) 
     router.push(`/?${currentParams.toString()}`, { scroll: false });
   };
 
+  const toggleDevPanel = () => {
+    const newValue = !showDevPanel;
+    setShowDevPanel(newValue);
+    localStorage.setItem('showDevPanel', newValue.toString());
+  };
+
   useEffect(() => {
     const tabFromUrl = searchParams.get('tab');
     if (tabFromUrl && tabFromUrl !== activeTab) {
@@ -338,6 +350,14 @@ export default function Dashboard({ userType, user, onLogout }: DashboardProps) 
             </div>
             <div className="flex items-center gap-4">
               <span className="text-sm text-gray-600">¡Hola, {user.fullName || user.email}!</span>
+              <Button
+                onClick={toggleDevPanel}
+                className="flex items-center gap-2 bg-blue-100 text-blue-700 hover:bg-blue-200"
+                size="sm"
+              >
+                <Code className="h-4 w-4" />
+                Dev
+              </Button>
               <Button
                 onClick={onLogout}
                 className="flex items-center gap-2 bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -821,9 +841,207 @@ export default function Dashboard({ userType, user, onLogout }: DashboardProps) 
           <div className="space-y-6">
             <h3 className="text-xl font-semibold">Mi Perfil</h3>
             
+            {/* Información del Perfil */}
             <Card>
               <CardHeader>
-                <CardTitle>Estadísticas</CardTitle>
+                <CardTitle>Información del Perfil</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {profileMessage.text && (
+                  <div className={`p-3 rounded-md ${
+                    profileMessage.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                  }`}>
+                    {profileMessage.text}
+                  </div>
+                )}
+                
+                {!isEditingProfile ? (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Nombre completo</label>
+                      <p className="text-sm text-gray-900">{user.fullName || 'No especificado'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Email</label>
+                      <p className="text-sm text-gray-900">{user.email}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Teléfono</label>
+                      <p className="text-sm text-gray-900">{user.phone || 'No especificado'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Bio</label>
+                      <p className="text-sm text-gray-900">{user.bio || 'No especificado'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Preferencias culinarias</label>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {user.preferences && user.preferences.length > 0 ? (
+                          user.preferences.map((pref: string, index: number) => (
+                            <Badge key={index} variant="secondary">{pref}</Badge>
+                          ))
+                        ) : (
+                          <p className="text-sm text-gray-500">No especificadas</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={() => setIsEditingProfile(true)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Editar Perfil
+                      </Button>
+                      <Button variant="outline" onClick={() => setIsChangingPassword(true)}>
+                        Cambiar Contraseña
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Nombre completo</label>
+                      <Input
+                        value={profileData.fullName}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, fullName: e.target.value }))}
+                        placeholder="Nombre completo"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Teléfono</label>
+                      <Input
+                        value={profileData.phone}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
+                        placeholder="Número de teléfono"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Bio</label>
+                      <Input
+                        value={profileData.bio}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
+                        placeholder="Cuéntanos sobre ti..."
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Preferencias culinarias</label>
+                      <p className="text-xs text-gray-500 mb-2">Separa con comas (ej: Italiana, Asiática, Vegetariana)</p>
+                      <Input
+                        value={profileData.preferences.join(', ')}
+                        onChange={(e) => setProfileData(prev => ({ 
+                          ...prev, 
+                          preferences: e.target.value.split(',').map(p => p.trim()).filter(p => p)
+                        }))}
+                        placeholder="Tus tipos de cocina favoritos"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={handleSaveProfile}
+                        disabled={profileLoading}
+                      >
+                        {profileLoading ? 'Guardando...' : 'Guardar'}
+                      </Button>
+                      <Button variant="outline" onClick={() => setIsEditingProfile(false)}>
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Cambio de Contraseña */}
+            {isChangingPassword && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Cambiar Contraseña</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Contraseña actual</label>
+                    <div className="relative">
+                      <Input
+                        type={showPasswords.current ? 'text' : 'password'}
+                        value={passwordData.currentPassword}
+                        onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                        placeholder="Contraseña actual"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3"
+                        onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))}
+                      >
+                        {showPasswords.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Nueva contraseña</label>
+                    <div className="relative">
+                      <Input
+                        type={showPasswords.new ? 'text' : 'password'}
+                        value={passwordData.newPassword}
+                        onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                        placeholder="Nueva contraseña"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3"
+                        onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
+                      >
+                        {showPasswords.new ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Confirmar nueva contraseña</label>
+                    <div className="relative">
+                      <Input
+                        type={showPasswords.confirm ? 'text' : 'password'}
+                        value={passwordData.confirmPassword}
+                        onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                        placeholder="Confirmar nueva contraseña"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3"
+                        onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
+                      >
+                        {showPasswords.confirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={handleChangePassword}
+                      disabled={profileLoading}
+                    >
+                      {profileLoading ? 'Cambiando...' : 'Cambiar Contraseña'}
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setIsChangingPassword(false);
+                        setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                        setProfileMessage({ type: '', text: '' });
+                      }}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
+            {/* Estadísticas */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Mis Estadísticas</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -875,6 +1093,9 @@ export default function Dashboard({ userType, user, onLogout }: DashboardProps) 
           onToggleFavorite={() => handleToggleFavorite(selectedRestaurantForDetails.id)}
         />
       )}
+
+      {/* Panel de Desarrollo */}
+      {showDevPanel && <DevPanel />}
     </div>
   );
 }
